@@ -107,19 +107,50 @@ export default function Home({ exhibitions = [] }) {
 
   if (user) {
     return (
-      <div className="page home-page">
+      <div className="page home-page home-page-bg">
+        <div className="home-page-overlay" aria-hidden="true" />
+        <div className="home-page-content">
+          <section className="hero-section">
+            <div className="hero-content">
+              <h1>Welcome back, {user.name}! 👋</h1>
+              <p>You are logged in as <strong>{user.role}</strong></p>
+              <div className="hero-buttons">
+                <button className="btn btn-primary" onClick={() => navigate('/gallery')}>
+                  Explore Gallery
+                </button>
+                <button className="btn btn-outline" onClick={() => navigate('/gallery')}>
+                  Continue Shopping
+                </button>
+              </div>
+            </div>
+          </section>
+
+          {spotlightExhibitions.length > 0 && (
+            <section className="panel">
+              <h3>Today&apos;s Curator Highlights</h3>
+              {spotlightExhibitions.map((showcase) => (
+                <article key={showcase.id} className="card compact">
+                  <h4>{showcase.title}</h4>
+                  <p><strong>Theme:</strong> {showcase.theme || 'General'} · <strong>Culture:</strong> {showcase.culture || 'Global'}</p>
+                  <p>{showcase.featured ? '🔥 Featured Today' : '✨ New curator pick'}</p>
+                  <p>{showcase.commentary || 'Visit this exhibition for a guided cultural perspective.'}</p>
+                </article>
+              ))}
+            </section>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="page home-page home-page-bg">
+      <div className="home-page-overlay" aria-hidden="true" />
+      <div className="home-page-content">
         <section className="hero-section">
           <div className="hero-content">
-            <h1>Welcome back, {user.name}! 👋</h1>
-            <p>You are logged in as <strong>{user.role}</strong></p>
-            <div className="hero-buttons">
-              <button className="btn btn-primary" onClick={() => navigate('/gallery')}>
-                Explore Gallery
-              </button>
-              <button className="btn btn-outline" onClick={() => navigate('/gallery')}>
-                Continue Shopping
-              </button>
-            </div>
+            <h1>🎨 Discover & Collect Exceptional Art</h1>
+            <p>Connect with artists, curators, and collectors worldwide</p>
           </div>
         </section>
 
@@ -131,63 +162,37 @@ export default function Home({ exhibitions = [] }) {
                 <h4>{showcase.title}</h4>
                 <p><strong>Theme:</strong> {showcase.theme || 'General'} · <strong>Culture:</strong> {showcase.culture || 'Global'}</p>
                 <p>{showcase.featured ? '🔥 Featured Today' : '✨ New curator pick'}</p>
-                <p>{showcase.commentary || 'Visit this exhibition for a guided cultural perspective.'}</p>
+                <p>{showcase.commentary || 'Sign in to explore this exhibition in detail.'}</p>
               </article>
             ))}
           </section>
         )}
-      </div>
-    )
-  }
 
-  return (
-    <div className="page home-page">
-      <section className="hero-section">
-        <div className="hero-content">
-          <h1>🎨 Discover & Collect Exceptional Art</h1>
-          <p>Connect with artists, curators, and collectors worldwide</p>
-        </div>
-      </section>
-
-      {spotlightExhibitions.length > 0 && (
-        <section className="panel">
-          <h3>Today&apos;s Curator Highlights</h3>
-          {spotlightExhibitions.map((showcase) => (
-            <article key={showcase.id} className="card compact">
-              <h4>{showcase.title}</h4>
-              <p><strong>Theme:</strong> {showcase.theme || 'General'} · <strong>Culture:</strong> {showcase.culture || 'Global'}</p>
-              <p>{showcase.featured ? '🔥 Featured Today' : '✨ New curator pick'}</p>
-              <p>{showcase.commentary || 'Sign in to explore this exhibition in detail.'}</p>
-            </article>
-          ))}
-        </section>
-      )}
-
-      <section className="auth-section">
-        <div className="auth-container">
-          {/* Tab Navigation */}
-          <div className="auth-tabs">
-            <button
-              className={`tab ${isLogin ? 'active' : ''}`}
-              onClick={() => {
-                setIsLogin(true)
-                setError('')
-                clearError()
-              }}
-            >
-              Sign In
-            </button>
-            <button
-              className={`tab ${!isLogin ? 'active' : ''}`}
-              onClick={() => {
-                setIsLogin(false)
-                setError('')
-                clearError()
-              }}
-            >
-              Create Account
-            </button>
-          </div>
+        <section className="auth-section">
+          <div className="auth-container">
+            {/* Tab Navigation */}
+            <div className="auth-tabs">
+              <button
+                className={`tab ${isLogin ? 'active' : ''}`}
+                onClick={() => {
+                  setIsLogin(true)
+                  setError('')
+                  clearError()
+                }}
+              >
+                Sign In
+              </button>
+              <button
+                className={`tab ${!isLogin ? 'active' : ''}`}
+                onClick={() => {
+                  setIsLogin(false)
+                  setError('')
+                  clearError()
+                }}
+              >
+                Create Account
+              </button>
+            </div>
 
           {/* Role Selection */}
           <div className="role-selection">
@@ -319,8 +324,9 @@ export default function Home({ exhibitions = [] }) {
               </p>
             </form>
           )}
-        </div>
-      </section>
+          </div>
+        </section>
+      </div>
     </div>
   )
 }

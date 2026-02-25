@@ -1,4 +1,5 @@
 import { verifyToken } from '../utils/jwt.js'
+import { env } from '../config/env.js'
 
 export function authenticate(req, res, next) {
   const authHeader = req.headers.authorization
@@ -23,6 +24,15 @@ export function requireRoles(...roles) {
 
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({ message: 'Insufficient role permissions' })
+    }
+
+    if (
+      roles.includes('ADMIN') &&
+      req.user.role === 'ADMIN' &&
+      env.adminEmail &&
+      req.user.email?.toLowerCase() !== env.adminEmail
+    ) {
+      return res.status(403).json({ message: 'Admin access denied for this account' })
     }
 
     return next()

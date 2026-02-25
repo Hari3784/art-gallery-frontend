@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs'
 import { pool } from '../config/db.js'
 import { signToken } from '../utils/jwt.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
+import { env } from '../config/env.js'
 
 const router = express.Router()
 
@@ -15,12 +16,19 @@ router.post(
       return res.status(400).json({ message: 'name, email, and password are required' })
     }
 
-    const [existing] = await pool.query('SELECT id FROM users WHERE email = ?', [email])
+    const normalizedEmail = String(email).trim().toLowerCase()
+    const normalizedRole = String(role).trim().toUpperCase()
+
+    if (normalizedRole === 'ADMIN' && (!env.adminEmail || normalizedEmail !== env.adminEmail)) {
+      return res.status(403).json({ message: 'Admin account registration is not allowed for this email' })
+    }
+
+    const [existing] = await pool.query('SELECT id FROM users WHERE email = ?', [normalizedEmail])
     if (existing.length) {
       return res.status(409).json({ message: 'Email already exists' })
     }
 
-    const [roles] = await pool.query('SELECT id, name FROM roles WHERE name = ?', [role])
+    const [roles] = await pool.query('SELECT id, name FROM roles WHERE name = ?', [normalizedRole])
     if (!roles.length) {
       return res.status(400).json({ message: 'Invalid role value' })
     }
@@ -28,13 +36,13 @@ router.post(
     const passwordHash = await bcrypt.hash(password, 10)
     const [result] = await pool.query(
       'INSERT INTO users (name, email, password_hash, role_id) VALUES (?, ?, ?, ?)',
-      [name, email, passwordHash, roles[0].id],
+      [name, normalizedEmail, passwordHash, roles[0].id],
     )
 
     const userPayload = {
       id: result.insertId,
       name,
-      email,
+      email: normalizedEmail,
       role: roles[0].name,
     }
 
@@ -54,12 +62,14 @@ router.post(
       return res.status(400).json({ message: 'email and password are required' })
     }
 
+    const normalizedEmail = String(email).trim().toLowerCase()
+
     const [users] = await pool.query(
       `SELECT u.id, u.name, u.email, u.password_hash, r.name AS role
        FROM users u
        INNER JOIN roles r ON r.id = u.role_id
-       WHERE u.email = ? AND u.is_active = TRUE`,
-      [email],
+       WHERE LOWER(u.email) = ? AND u.is_active = TRUE`,
+      [normalizedEmail],
     )
 
     if (!users.length) {
@@ -76,6 +86,10 @@ router.post(
       name: users[0].name,
       email: users[0].email,
       role: users[0].role,
+    }
+
+    if (userPayload.role === 'ADMIN' && env.adminEmail && userPayload.email.toLowerCase() !== env.adminEmail) {
+      return res.status(403).json({ message: 'Admin account not permitted for this email' })
     }
 
     return res.json({

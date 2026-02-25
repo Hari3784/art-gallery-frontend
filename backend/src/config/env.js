@@ -9,6 +9,7 @@ export const env = {
   dbUser: process.env.DB_USER || 'root',
   dbPassword: process.env.DB_PASSWORD || '',
   dbName: process.env.DB_NAME || 'virtual_art_gallery',
+  adminEmail: (process.env.ADMIN_EMAIL || '').trim().toLowerCase(),
   jwtSecret: process.env.JWT_SECRET || 'change_this_secret',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
 }

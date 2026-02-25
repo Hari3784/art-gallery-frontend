@@ -3,6 +3,7 @@ import { createContext, useState, useEffect } from 'react'
 export const AuthContext = createContext()
 
 const API_BASE_URL = 'http://localhost:5000/api/v1'
+const normalizeRole = (role = 'VISITOR') => role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
@@ -15,7 +16,7 @@ export function AuthProvider({ children }) {
     if (token && storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser)
-        setUser(parsedUser)
+        setUser({ ...parsedUser, role: normalizeRole(parsedUser.role || 'VISITOR') })
       } catch (err) {
         console.error('Failed to parse stored user:', err)
         localStorage.removeItem('token')
@@ -44,7 +45,7 @@ export function AuthProvider({ children }) {
         const data = await response.json()
         const userData = {
           ...data.user,
-          role: role || data.user.role || 'Visitor',
+          role: normalizeRole(data.user.role || 'VISITOR'),
         }
         
         localStorage.setItem('token', data.token)
@@ -60,7 +61,7 @@ export function AuthProvider({ children }) {
             id: Math.floor(Math.random() * 10000),
             name: email.split('@')[0],
             email: email,
-            role: role || 'Visitor',
+            role: normalizeRole(role || 'VISITOR'),
           }
           localStorage.setItem('token', demoToken)
           localStorage.setItem('user', JSON.stringify(userData))
@@ -117,7 +118,7 @@ export function AuthProvider({ children }) {
         const data = await response.json()
         const userData = {
           ...data.user,
-          role: role,
+          role: normalizeRole(data.user.role || role || 'VISITOR'),
         }
         
         localStorage.setItem('token', data.token)
@@ -133,7 +134,7 @@ export function AuthProvider({ children }) {
             id: Math.floor(Math.random() * 10000),
             name: name,
             email: email,
-            role: role || 'Visitor',
+            role: normalizeRole(role || 'VISITOR'),
             mobile: mobile || '',
           }
           localStorage.setItem('token', demoToken)

@@ -55,7 +55,7 @@ export default function Navbar() {
                 <span className="user-badge" title={`Role: ${user.role}`}>
                   {user.role === 'Artist' ? '🎨' : user.role === 'Admin' ? '⚙️' : user.role === 'Curator' ? '🖼️' : '👤'}
                 </span>
-                <span className="user-name">{user.name}</span>
+                <span className="user-name">{user.email || user.name}</span>
               </div>
 
               <button 

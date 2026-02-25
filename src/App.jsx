@@ -1,6 +1,5 @@
 import { useEffect, useState, useMemo, useContext } from 'react'
 import {
-  BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
@@ -22,7 +21,7 @@ import ArtistDashboard from './pages/ArtistDashboard'
 import CuratorDashboard from './pages/CuratorDashboard'
 import artworksData from './data/artworks'
 
-const API_BASE_URL = 'http://localhost:5000/api/v1'
+const API_BASE_URL = 'http://localhost:5000/api'
 const LOCAL_SALES_STORAGE_KEY = 'local_sales_records'
 const LOCAL_EXHIBITIONS_STORAGE_KEY = 'local_exhibitions'
 const fallbackArtworkImage =
@@ -105,6 +104,40 @@ function AppContent() {
       return []
     }
   })
+
+  useEffect(() => {
+    let isCancelled = false
+
+    const loadArtworks = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/artworks`)
+        if (!response.ok) {
+          throw new Error('Failed to fetch artworks')
+        }
+
+        const data = await response.json()
+        if (!isCancelled && Array.isArray(data)) {
+          const source = data.length ? data : initialArtworks
+          const normalized = source.map((artwork) => ({
+            ...artwork,
+            image: typeof artwork.image === 'string' && artwork.image.trim() ? artwork.image : fallbackArtworkImage,
+          }))
+          setArtworks(normalized)
+        }
+      } catch (error) {
+        if (!isCancelled) {
+          console.error('Failed to load artworks:', error)
+          setArtworks(initialArtworks)
+        }
+      }
+    }
+
+    loadArtworks()
+
+    return () => {
+      isCancelled = true
+    }
+  }, [])
 
   const fetchAuthorized = async (path, options = {}) => {
     const token = localStorage.getItem('token')
@@ -298,23 +331,29 @@ function AppContent() {
     setCart((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]))
   }
 
-  const handleArtworkUpload = () => {
+  const handleArtworkUpload = async () => {
     if (!uploadForm.title || !uploadForm.price || !uploadForm.image) {
       alert('Please fill all required fields')
       return
     }
-    const newArtwork = {
-      id: artworks.length + 1,
-      ...uploadForm,
-      artist: user?.name || 'Unknown Artist',
-      price: Number(uploadForm.price),
-      status: 'pending',
-      rating: 0,
-      reviews: 0,
-      featured: false,
+
+    try {
+      const createdArtwork = await fetchAuthorized('/artworks', {
+        method: 'POST',
+        body: JSON.stringify({
+          ...uploadForm,
+          artist: user?.name || 'Unknown Artist',
+          price: Number(uploadForm.price),
+        }),
+      })
+
+      setArtworks((prev) => [...prev, createdArtwork])
+      alert('Artwork uploaded for admin approval!')
+    } catch (error) {
+      alert(error.message || 'Unable to upload artwork right now')
+      return
     }
-    setArtworks((prev) => [...prev, newArtwork])
-    alert('Artwork uploaded for admin approval!')
+
     setUploadForm({
       title: '',
       category: 'Painting',
@@ -353,12 +392,32 @@ function AppContent() {
     setExhibitions((prev) => prev.filter((item) => item.id !== id))
   }
 
-  const removeArtwork = (id) => {
-    setArtworks((prev) => prev.filter((a) => a.id !== id))
+  const removeArtwork = async (id) => {
+    try {
+      await fetchAuthorized(`/artworks/${id}`, {
+        method: 'DELETE',
+      })
+      setArtworks((prev) => prev.filter((a) => a.id !== id))
+    } catch (error) {
+      alert(error.message || 'Unable to delete artwork right now')
+    }
   }
 
-  const updateArtworkStatus = (id, newStatus) => {
-    setArtworks((prev) => prev.map((a) => (a.id === id ? { ...a, status: newStatus } : a)))
+  const updateArtworkStatus = async (id, newStatus) => {
+    const target = artworks.find((item) => item.id === id)
+    if (!target) {
+      return
+    }
+
+    try {
+      const updatedArtwork = await fetchAuthorized(`/artworks/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ ...target, status: newStatus }),
+      })
+      setArtworks((prev) => prev.map((a) => (a.id === id ? updatedArtwork : a)))
+    } catch (error) {
+      alert(error.message || 'Unable to update artwork right now')
+    }
   }
 
   const changeUserRole = async (id, newRole) => {
@@ -434,11 +493,11 @@ function AppContent() {
 
       <main className="main-content">
         <Routes>
-          <Route path="/" element={<About exhibitions={exhibitions} />} />
+          <Route path="/" element={<Home exhibitions={exhibitions} />} />
           <Route path="/about" element={<About exhibitions={exhibitions} />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/home" element={<Home exhibitions={exhibitions} />} />
-          <Route path="/gallery" element={<Gallery />} />
+          <Route path="/gallery" element={<Gallery artworks={artworks} />} />
 
           <Route
             path="/visitor"
@@ -541,7 +600,7 @@ function AppContent() {
             }
           />
 
-          <Route path="*" element={<Navigate to="/about" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
 
@@ -552,10 +611,8 @@ function AppContent() {
 
 export default function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </Router>
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   )
 }

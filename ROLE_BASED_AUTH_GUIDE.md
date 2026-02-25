@@ -185,7 +185,7 @@ Redirect to role-specific dashboard
 
 ### Login Endpoint
 ```javascript
-POST /api/v1/auth/login
+POST /api/auth/login
 {
   email: "user@example.com",
   password: "password123"
@@ -195,7 +195,7 @@ POST /api/v1/auth/login
 
 ### Register Endpoint
 ```javascript
-POST /api/v1/auth/register
+POST /api/auth/register
 {
   name: "User Name",
   email: "user@example.com",

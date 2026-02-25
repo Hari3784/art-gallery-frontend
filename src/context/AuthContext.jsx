@@ -2,7 +2,7 @@ import { createContext, useState, useEffect } from 'react'
 
 export const AuthContext = createContext()
 
-const API_BASE_URL = 'http://localhost:5000/api/v1'
+const API_BASE_URL = 'http://localhost:5000/api'
 const normalizeRole = (role = 'VISITOR') => role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()
 
 export function AuthProvider({ children }) {
@@ -36,6 +36,10 @@ export function AuthProvider({ children }) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
         })
+
+        if (response.status === 404) {
+          throw new TypeError('Auth endpoint not available')
+        }
         
         if (!response.ok) {
           const errorData = await response.json()
@@ -54,7 +58,10 @@ export function AuthProvider({ children }) {
         return userData
       } catch (fetchErr) {
         // If backend is not available, use demo mode
-        if (fetchErr instanceof TypeError && fetchErr.message.includes('fetch')) {
+        if (
+          fetchErr instanceof TypeError &&
+          (fetchErr.message.includes('fetch') || fetchErr.message.includes('Auth endpoint not available'))
+        ) {
           console.log('Demo mode: Backend not available, using local storage')
           const demoToken = `demo_token_${Date.now()}`
           const userData = {
@@ -109,6 +116,10 @@ export function AuthProvider({ children }) {
             role: role === 'Artist' ? 'ARTIST' : role.toUpperCase(),
           }),
         })
+
+        if (response.status === 404) {
+          throw new TypeError('Auth endpoint not available')
+        }
         
         if (!response.ok) {
           const errorData = await response.json()
@@ -127,7 +138,10 @@ export function AuthProvider({ children }) {
         return userData
       } catch (fetchErr) {
         // If backend is not available, use demo mode
-        if (fetchErr instanceof TypeError && fetchErr.message.includes('fetch')) {
+        if (
+          fetchErr instanceof TypeError &&
+          (fetchErr.message.includes('fetch') || fetchErr.message.includes('Auth endpoint not available'))
+        ) {
           console.log('Demo mode: Backend not available, using local storage')
           const demoToken = `demo_token_${Date.now()}`
           const userData = {

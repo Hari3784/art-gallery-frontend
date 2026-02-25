@@ -1,6 +1,6 @@
 # Virtual Art Gallery Platform
 
-Role-based virtual gallery application built with React + Vite.
+Professional REST-based virtual gallery application built with React + Vite (frontend) and Node.js + Express (backend).
 
 ## Implemented Frontend Modules
 
@@ -14,15 +14,22 @@ Role-based virtual gallery application built with React + Vite.
 
 ## Tech Stack
 
-- React 19
-- Vite 8
-- ESLint
+- Frontend: React 19, React Router, Vite 8
+- Backend: Node.js, Express 5, CORS
+- Storage: JSON file persistence (`backend/src/data/artworks.json`)
 
 ## Run Project
 
 ```bash
 npm install
 npm run dev
+```
+
+Run backend in another terminal:
+
+```bash
+npm.cmd --prefix backend install
+npm.cmd --prefix backend run dev
 ```
 
 For PowerShell script policy issues on Windows:
@@ -38,42 +45,32 @@ npm.cmd run lint
 npm.cmd run build
 ```
 
-## Backend Integration Docs
+## Backend REST API
 
-- REST API Contract: [docs/api-contract.md](docs/api-contract.md)
-- MySQL Schema: [docs/schema.sql](docs/schema.sql)
-
-## Backend Starter (Express + JWT + MySQL)
-
-Backend is scaffolded in [backend](backend) with:
-
-- JWT authentication
-- Role middleware (`ADMIN`, `ARTIST`, `VISITOR`, `CURATOR`)
-- Core routes: auth, users, artworks, exhibitions, wishlist/cart/checkout, analytics
-- MySQL connection pool (`mysql2/promise`)
-
-### Setup backend
-
-1. Copy [backend/.env.example](backend/.env.example) to `backend/.env`
-2. Update DB and JWT values
-3. Run database script from [docs/schema.sql](docs/schema.sql)
-
-### Run backend
-
-```bash
-npm.cmd --prefix backend install
-npm.cmd --prefix backend run dev
-```
+- Base URL: `http://localhost:5000/api`
+- Endpoints:
+	- `GET /artworks`
+	- `GET /artworks/:id`
+	- `POST /artworks`
+	- `PUT /artworks/:id`
+	- `DELETE /artworks/:id`
+- Validation:
+	- Required fields for create: `title`, `category`, `price`, `image`
+	- Validates numeric IDs, status values, image URL, and price values
+- Persistence:
+	- Data is persisted in `backend/src/data/artworks.json`
+	- Changes survive backend restarts
+- Error handling:
+	- Consistent JSON error responses with appropriate HTTP status codes
+- CORS:
+	- Enabled for frontend-backend integration
 
 Health check: `GET http://localhost:5000/health`
 
-## Suggested Backend Stack
-
-- Node.js + Express + JWT authentication
-- MySQL 8+
-- Role-based access middleware (`Admin`, `Artist`, `Visitor`, `Curator`)
+Detailed contract: [docs/api-contract.md](docs/api-contract.md)
 
 ## Current Status
 
-- Frontend is fully functional with mock state.
-- Next step is replacing mock state calls with real API integration using the contract above.
+- Frontend uses React Router with direct URL access for Home, Gallery, About, and Contact.
+- Gallery is dynamic and fetched from backend API.
+- Backend is database-free and ready for academic submission.

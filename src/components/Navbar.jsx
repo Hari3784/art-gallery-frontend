@@ -35,15 +35,16 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <Link to="/about" className="navbar-logo">
+        <Link to="/" className="navbar-logo">
           <span className="logo-icon">✨</span>
           <span className="logo-text">Art Gallery</span>
         </Link>
 
         <div className="navbar-menu">
-          <Link to="/about" className="navbar-link">ℹ️ About</Link>
-          <Link to="/home" className="navbar-link">🏠 Home</Link>
+          <Link to="/" className="navbar-link">🏠 Home</Link>
           <Link to="/gallery" className="navbar-link">🖼️ Gallery</Link>
+          <Link to="/about" className="navbar-link">ℹ️ About</Link>
+          <Link to="/contact" className="navbar-link">📩 Contact</Link>
 
           {user ? (
             <>
@@ -68,7 +69,7 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link to="/home" className="btn btn-outline navbar-auth">
+              <Link to="/" className="btn btn-outline navbar-auth">
                 Login / Register
               </Link>
             </>

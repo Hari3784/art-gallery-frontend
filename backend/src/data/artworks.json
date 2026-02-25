@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "title": "Temple Dawn",
+    "artist": "Aarav Iyer",
+    "culture": "Indian",
+    "period": "18th Century Inspired",
+    "category": "Painting",
+    "price": 28500,
+    "description": "A sunrise view over a South Indian temple complex.",
+    "historicalInfo": "Inspired by mural traditions from Thanjavur.",
+    "image": "https://images.unsplash.com/photo-1547891654-e66ed7ebb968?auto=format&fit=crop&w=1000&q=80",
+    "status": "approved",
+    "rating": 4.7,
+    "reviews": 86,
+    "featured": true
+  },
+  {
+    "id": 2,
+    "title": "Kyoto Monsoon",
+    "artist": "Mei Tanaka",
+    "culture": "Japanese",
+    "period": "Modern",
+    "category": "Digital Art",
+    "price": 32400,
+    "description": "Rain-soaked streets around old Kyoto neighborhoods.",
+    "historicalInfo": "Reflects ukiyo-e composition with modern lighting.",
+    "image": "https://images.unsplash.com/photo-1577083165633-14ebcdb0f658?auto=format&fit=crop&w=1000&q=80",
+    "status": "approved",
+    "rating": 4.8,
+    "reviews": 63,
+    "featured": true
+  },
+  {
+    "id": 3,
+    "title": "Bronze Chronicle",
+    "artist": "Lucas Moretti",
+    "culture": "Italian",
+    "period": "Renaissance Inspired",
+    "category": "Sculpture",
+    "price": 74800,
+    "description": "Miniature bronze figures inspired by civic life.",
+    "historicalInfo": "Built from references to Florentine guild archives.",
+    "image": "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?auto=format&fit=crop&w=1000&q=80",
+    "status": "pending",
+    "rating": 0,
+    "reviews": 0,
+    "featured": false
+  }
+]

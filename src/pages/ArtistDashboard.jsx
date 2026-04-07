@@ -27,7 +27,12 @@ export default function ArtistDashboard({
           <input className="input" placeholder="Culture" value={uploadForm.culture} onChange={(event) => setUploadForm((prev) => ({ ...prev, culture: event.target.value }))} />
           <input className="input" placeholder="Period" value={uploadForm.period} onChange={(event) => setUploadForm((prev) => ({ ...prev, period: event.target.value }))} />
           <input className="input" placeholder="Price" type="number" value={uploadForm.price} onChange={(event) => setUploadForm((prev) => ({ ...prev, price: event.target.value }))} />
-          <input className="input" placeholder="Image URL" value={uploadForm.image} onChange={(event) => setUploadForm((prev) => ({ ...prev, image: event.target.value }))} />
+          <input className="input" type="file" accept="image/*" onChange={(event) => {
+            const file = event.target.files[0]
+            if (file) {
+              setUploadForm((prev) => ({ ...prev, image: file }))
+            }
+          }} />
           <textarea className="input" placeholder="Description" value={uploadForm.description} onChange={(event) => setUploadForm((prev) => ({ ...prev, description: event.target.value }))} />
           <textarea className="input" placeholder="Cultural & historical info" value={uploadForm.historicalInfo} onChange={(event) => setUploadForm((prev) => ({ ...prev, historicalInfo: event.target.value }))} />
         </div>

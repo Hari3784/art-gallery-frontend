@@ -21,7 +21,8 @@ import ArtistDashboard from './pages/ArtistDashboard'
 import CuratorDashboard from './pages/CuratorDashboard'
 import artworksData from './data/artworks'
 
-const API_BASE_URL = 'http://localhost:5000/api'
+const API_BASE_URL = 'http://localhost:8080/api'
+const BACKEND_URL = 'http://localhost:8080'
 const LOCAL_SALES_STORAGE_KEY = 'local_sales_records'
 const LOCAL_EXHIBITIONS_STORAGE_KEY = 'local_exhibitions'
 const fallbackArtworkImage =
@@ -120,7 +121,9 @@ function AppContent() {
           const source = data.length ? data : initialArtworks
           const normalized = source.map((artwork) => ({
             ...artwork,
-            image: typeof artwork.image === 'string' && artwork.image.trim() ? artwork.image : fallbackArtworkImage,
+            image: typeof artwork.image === 'string' && artwork.image.trim() 
+              ? (artwork.image.startsWith('http') ? artwork.image : `${BACKEND_URL}/uploads/${artwork.image}`) 
+              : fallbackArtworkImage,
           }))
           setArtworks(normalized)
         }
@@ -141,8 +144,9 @@ function AppContent() {
 
   const fetchAuthorized = async (path, options = {}) => {
     const token = localStorage.getItem('token')
+    const isFormData = options.body instanceof FormData
     const headers = {
-      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+      ...(options.body && !isFormData ? { 'Content-Type': 'application/json' } : {}),
       ...(options.headers || {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     }
@@ -161,12 +165,19 @@ function AppContent() {
     }
 
     if (!response.ok) {
-      let errorMessage = 'Request failed'
+      let errorMessage = `Request failed with status ${response.status}`
       try {
-        const errorData = await response.json()
-        errorMessage = errorData.message || errorMessage
-      } catch {
-        // no-op
+        const text = await response.text()
+        if (text) {
+          try {
+            const errorData = JSON.parse(text)
+            errorMessage = errorData.message || errorData.error || text
+          } catch {
+            errorMessage = text
+          }
+        }
+      } catch (e) {
+        console.error('Error reading response body:', e)
       }
       throw new Error(errorMessage)
     }
@@ -203,6 +214,9 @@ function AppContent() {
 
   const filteredArtworks = useMemo(() => {
     return artworks.filter((art) => {
+      // VISITOR only sees approved artworks in the main gallery grid
+      if (art.status !== 'approved') return false
+
       const matchesSearch =
         art.title.toLowerCase().includes(search.toLowerCase()) ||
         art.artist.toLowerCase().includes(search.toLowerCase()) ||
@@ -333,21 +347,37 @@ function AppContent() {
 
   const handleArtworkUpload = async () => {
     if (!uploadForm.title || !uploadForm.price || !uploadForm.image) {
-      alert('Please fill all required fields')
+      alert('Please fill all required fields and select an image')
       return
     }
 
     try {
-      const createdArtwork = await fetchAuthorized('/artworks', {
+      const formData = new FormData()
+      formData.append('title', uploadForm.title)
+      formData.append('category', uploadForm.category)
+      formData.append('culture', uploadForm.culture)
+      formData.append('period', uploadForm.period)
+      formData.append('price', uploadForm.price)
+      formData.append('description', uploadForm.description)
+      formData.append('historicalInfo', uploadForm.historicalInfo)
+      formData.append('artist', user?.name || 'Unknown Artist')
+      formData.append('image', uploadForm.image) // This is now a File object
+
+      const createdArtwork = await fetchAuthorized('/artworks/upload', {
         method: 'POST',
-        body: JSON.stringify({
-          ...uploadForm,
-          artist: user?.name || 'Unknown Artist',
-          price: Number(uploadForm.price),
-        }),
+        // Omit Content-Type stringification to let the browser set boundary for multipart
+        body: formData,
       })
 
-      setArtworks((prev) => [...prev, createdArtwork])
+      // Normalize the image URL before adding to state
+      const normalizedArtwork = {
+        ...createdArtwork,
+        image: typeof createdArtwork.image === 'string' && createdArtwork.image.trim() 
+          ? (createdArtwork.image.startsWith('http') ? createdArtwork.image : `${BACKEND_URL}/uploads/${createdArtwork.image}`) 
+          : fallbackArtworkImage,
+      }
+
+      setArtworks((prev) => [...prev, normalizedArtwork])
       alert('Artwork uploaded for admin approval!')
     } catch (error) {
       alert(error.message || 'Unable to upload artwork right now')
@@ -445,6 +475,16 @@ function AppContent() {
       return
     }
 
+    if (!user || user.role !== 'Visitor') {
+      setCheckoutError('You must be logged in as a Visitor to purchase.')
+      return
+    }
+
+    if (cartItems.length === 0) {
+       setCheckoutError('Your cart is empty.')
+       return
+    }
+
     setCheckoutError('')
 
     const resetCheckoutState = () => {
@@ -458,19 +498,23 @@ function AppContent() {
       })
       setTimeout(() => {
         setCheckoutSuccess('')
-      }, 2000)
+      }, 3000)
     }
 
     try {
-      await fetchAuthorized('/checkout', {
-        method: 'POST',
-        body: JSON.stringify({
-          ...checkoutForm,
-          currency: 'INR',
-        }),
-      })
+      // Loop through each item in the cart and place an order using the backend OrderController
+      const orderResults = await Promise.all(
+        cartItems.map(item => 
+          fetchAuthorized(`/orders/place?visitorId=${user.id}&artworkId=${item.id}`, {
+            method: 'POST'
+          })
+        )
+      )
+
+      console.log('Order results:', orderResults)
       recordCompletedSales(cartItems)
-      setCheckoutSuccess('Order placed successfully! Your artworks will arrive shortly.')
+      setCheckoutSuccess('Order placed successfully! A confirmation email has been sent to your registered address.')
+      window.alert('Thank you for shopping! Your order has been placed and a confirmation email has been sent.')
       resetCheckoutState()
     } catch (error) {
       const isDemoUser = localStorage.getItem('token')?.startsWith('demo_token_')

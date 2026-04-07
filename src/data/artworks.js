@@ -73,7 +73,7 @@ const artworks = [
     price: 41200,
     description: 'Color-rich celebration scene inspired by temple festivals.',
     historicalInfo: 'Blends classical color symbolism with modern abstraction.',
-    image: 'https://images.unsplash.com/photo-1561214115-6d2f1b0609fa?auto=format&fit=crop&w=1000&q=80',
+    image: 'https://images.unsplash.com/photo-1541963463532-d68292c34b19?auto=format&fit=crop&w=1000&q=80',
     status: 'approved',
     rating: 4.6,
     reviews: 72,

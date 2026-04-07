@@ -314,6 +314,25 @@ textarea.input {
   margin-bottom: 0.35rem;
 }
 
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.checkout-thumb {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
 .artist-grid {
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
 }
@@ -1193,6 +1212,16 @@ textarea.input {
 .main-content {
   flex: 1;
   padding: 2rem 1rem;
+}
+
+.wishlist-card {
+  border-left: 4px solid #f97316;
+  transition: transform 0.2s ease;
+}
+
+.wishlist-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
 @media (max-width: 640px) {

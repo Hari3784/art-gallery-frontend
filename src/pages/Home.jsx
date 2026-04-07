@@ -81,7 +81,7 @@ export default function Home({ exhibitions = [] }) {
     }
 
     try {
-      const userData = await register(
+      await register(
         registerForm.name,
         registerForm.email,
         registerForm.password,
@@ -89,15 +89,16 @@ export default function Home({ exhibitions = [] }) {
         registerForm.mobile
       )
 
-      // Redirect based on role
-      const rolePath = {
-        'Admin': '/admin',
-        'Artist': '/artist',
-        'Visitor': '/visitor',
-        'Curator': '/curator',
-      }[userData.role] || '/gallery'
-
-      navigate(rolePath)
+      alert('Registration successful! Please login manually.')
+      setIsLogin(true)
+      setLoginForm({ ...loginForm, email: registerForm.email })
+      setRegisterForm({
+        name: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        mobile: '',
+      })
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.')
     } finally {

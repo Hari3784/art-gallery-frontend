@@ -2,7 +2,7 @@ import { createContext, useState, useEffect } from 'react'
 
 export const AuthContext = createContext()
 
-const API_BASE_URL = 'http://localhost:5000/api'
+const API_BASE_URL = 'http://localhost:8080/api'
 const normalizeRole = (role = 'VISITOR') => role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()
 
 export function AuthProvider({ children }) {
@@ -126,16 +126,8 @@ export function AuthProvider({ children }) {
           throw new Error(errorData.message || 'Registration failed')
         }
         
-        const data = await response.json()
-        const userData = {
-          ...data.user,
-          role: normalizeRole(data.user.role || role || 'VISITOR'),
-        }
-        
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('user', JSON.stringify(userData))
-        setUser(userData)
-        return userData
+        const data = await response.text()
+        return data
       } catch (fetchErr) {
         // If backend is not available, use demo mode
         if (
@@ -143,18 +135,7 @@ export function AuthProvider({ children }) {
           (fetchErr.message.includes('fetch') || fetchErr.message.includes('Auth endpoint not available'))
         ) {
           console.log('Demo mode: Backend not available, using local storage')
-          const demoToken = `demo_token_${Date.now()}`
-          const userData = {
-            id: Math.floor(Math.random() * 10000),
-            name: name,
-            email: email,
-            role: normalizeRole(role || 'VISITOR'),
-            mobile: mobile || '',
-          }
-          localStorage.setItem('token', demoToken)
-          localStorage.setItem('user', JSON.stringify(userData))
-          setUser(userData)
-          return userData
+          return { message: "Demo registration successful" }
         }
         throw fetchErr
       }

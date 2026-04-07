@@ -124,9 +124,36 @@ export default function VisitorDashboard({
       {visitorTab === 'wishlist' && (
         <section className="panel">
           <h3>Wishlist</h3>
-          {approvedArtworks.filter((art) => wishlist.includes(art.id)).map((art) => (
-            <p key={art.id}>{art.title} by {art.artist} — {formatINR(art.price)}</p>
-          ))}
+          <div className="grid artist-grid">
+            {approvedArtworks.filter((art) => wishlist.includes(art.id)).map((art) => (
+              <article key={art.id} className="card wishlist-card">
+                <div className="image-wrap">
+                  <img
+                    src={art.image}
+                    alt={art.title}
+                    onError={(event) => handleImageError(event, `wishlist-${art.id}`)}
+                  />
+                  {imageFallbackMap[`wishlist-${art.id}`] && (
+                    <span className="img-fallback-badge">Image unavailable</span>
+                  )}
+                </div>
+                <h4>{art.title}</h4>
+                <p className="muted">{art.artist} · {art.culture}</p>
+                <strong className="price-text">{formatINR(art.price)}</strong>
+                <div className="actions-row">
+                  <button className="btn btn-outline" onClick={() => { setSelectedArtworkId(art.id); setVisitorTab('tour') }}>
+                    View in Tour
+                  </button>
+                  <button className="btn btn-outline" onClick={() => toggleWishlist(art.id)}>
+                    Remove
+                  </button>
+                  <button className="btn btn-primary" onClick={() => toggleCart(art.id)}>
+                    {cart.includes(art.id) ? 'In Cart' : 'Add Cart'}
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
           {wishlist.length === 0 && <p className="muted">No wishlist items yet.</p>}
         </section>
       )}
@@ -195,7 +222,10 @@ export default function VisitorDashboard({
               <h4>Cart Checklist</h4>
               <ul className="order-checklist">
                 {cartItems.map((item) => (
-                  <li key={item.id}>✅ {item.title} — {formatINR(item.price)}</li>
+                  <li key={item.id} className="checklist-item">
+                    <img src={item.image} alt={item.title} className="checkout-thumb" />
+                    <span>✅ {item.title} — {formatINR(item.price)}</span>
+                  </li>
                 ))}
               </ul>
               {!cartItems.length && <p className="muted">No items in cart.</p>}

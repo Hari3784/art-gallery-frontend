@@ -1,0 +1,16 @@
+﻿C:\Users\sathi\OneDrive\Documents\p1\p1\art-gallery-frontend\src\App.jsx
+C:\Users\sathi\OneDrive\Documents\p1\p1\art-gallery-frontend\src\main.jsx
+C:\Users\sathi\OneDrive\Documents\p1\p1\art-gallery-frontend\src\components\ArtworkCard.jsx
+C:\Users\sathi\OneDrive\Documents\p1\p1\art-gallery-frontend\src\components\Footer.jsx
+C:\Users\sathi\OneDrive\Documents\p1\p1\art-gallery-frontend\src\components\Navbar.jsx
+C:\Users\sathi\OneDrive\Documents\p1\p1\art-gallery-frontend\src\components\ProtectedRoute.jsx
+C:\Users\sathi\OneDrive\Documents\p1\p1\art-gallery-frontend\src\context\AuthContext.jsx
+C:\Users\sathi\OneDrive\Documents\p1\p1\art-gallery-frontend\src\pages\About.jsx
+C:\Users\sathi\OneDrive\Documents\p1\p1\art-gallery-frontend\src\pages\AdminDashboard.jsx
+C:\Users\sathi\OneDrive\Documents\p1\p1\art-gallery-frontend\src\pages\ArtistDashboard.jsx
+C:\Users\sathi\OneDrive\Documents\p1\p1\art-gallery-frontend\src\pages\Contact.jsx
+C:\Users\sathi\OneDrive\Documents\p1\p1\art-gallery-frontend\src\pages\CuratorDashboard.jsx
+C:\Users\sathi\OneDrive\Documents\p1\p1\art-gallery-frontend\src\pages\Gallery.jsx
+C:\Users\sathi\OneDrive\Documents\p1\p1\art-gallery-frontend\src\pages\Home.jsx
+C:\Users\sathi\OneDrive\Documents\p1\p1\art-gallery-frontend\src\pages\Login.jsx
+C:\Users\sathi\OneDrive\Documents\p1\p1\art-gallery-frontend\src\pages\VisitorDashboard.jsx
